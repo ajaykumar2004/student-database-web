@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DashBoard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            padding: 15px;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        input {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #27ae60;
+        }
+
+        #result {
+            background-color: #ffffff;
+            padding: 15px;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fetch your details here :</h1>
+    <form onsubmit="readRecord()">
+        <label for="rollToFetch">Enter roll number: </label>
+        <input type="text" id="rollToFetch">
+        <button type="submit"><b>Fetch</b></button>
+        <button type="submit" onclick="deleteRecord()"><b>Delete</b></button>
+    </form>
+    <div id="result">
+    
+    </div>
+    <h1>Insert your records here : </h1>
+    <form onsubmit="createRecord()">
+        <label for="name">Enter name : </label>
+        <input type="text" id="name">
+        <br>
+        <label for="roll">Enter roll number : </label>
+        <input type="text" id="roll">
+        <br>
+        <label for="age">Enter age :</label>
+        <input type="number" id="age">
+        <br>
+        <label for="gender">Enter gender : </label>
+        <input type="text" id="gender">
+        <button type="submit"><b>Insert</b></button>
+        <button type="submit" onclick="updateRecord()"><b>Update</b></button>
+    </form>
+    <script>
+        async function createRecord() {
+            const name = document.getElementById("name").value;
+            const roll = document.getElementById("roll").value;
+            const age = document.getElementById("age").value;
+            const gender = document.getElementById("gender").value;
+            const data = {
+                name: name,
+                roll: roll,
+                age: age,
+                gender: gender
+            };
+            const response = await fetch("http://localhost:8000/insert", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            // Handle the response as needed
+        }
+    
+        async function updateRecord() {
+            event.preventDefault();
+            const name = document.getElementById("name").value;
+            const roll = document.getElementById("roll").value;
+            const age = document.getElementById("age").value;
+            const gender = document.getElementById("gender").value;
+            const data = {
+                name: name,
+                roll: roll,
+                age: age,
+                gender: gender
+            };
+            const response = await fetch(`http://localhost:8000/update?roll=${roll}`, {
+                method: 'PUT', // Use PUT method for updating data
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            // Handle the response as needed
+        }
+    
+        function readRecord() {
+            event.preventDefault();
+            const rollToFetch = document.getElementById("rollToFetch").value;
+            fetch(`http://localhost:8000/fetch?roll=${rollToFetch}`, {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                display(data);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+        }
+    
+        function deleteRecord() {
+            event.preventDefault();
+            const rollToFetch = document.getElementById("rollToFetch").value;
+            fetch(`http://localhost:8000/delete?roll=${rollToFetch}`, {
+                method: "DELETE", // Use DELETE method for deleting data
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                display(data);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+        }
+    
+        function display(data) {
+            const container = document.getElementById("result");
+            if (data.student) {
+                container.innerHTML = `
+                <h2>Student Details:</h2>
+                <label>Student name : ${data.student.name}</label>
+                <label>Student roll : ${data.student.roll}</label>
+                <label>Student age : ${data.student.age}</label>
+                <label>Student gender : ${data.student.gender}</label>
+                `;
+            }
+        }
+    </script>
+    
+</body>
+</html>
